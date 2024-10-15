@@ -2,6 +2,7 @@ import { inject } from "../../infra/di/DI";
 import Ride from "../../domain/entity/Ride";
 import RideRepository from "../../infra/repository/RideRepository";
 import AccountGateway from "../../infra/gateway/AccountGateway";
+import Queue from "../../infra/queue/Queue";
 
 
 export default class AcceptRide {
@@ -9,6 +10,8 @@ export default class AcceptRide {
 	accountGateway?: AccountGateway;
 	@inject("rideRepository")
 	rideRepository?: RideRepository;
+	@inject("queue")
+	queue!: Queue;
 
 	async execute (input: Input): Promise<void> {
 		const account = await this.accountGateway?.getAccountById(input.driverId);
@@ -18,6 +21,7 @@ export default class AcceptRide {
 		if (!ride) throw new Error();
 		ride.accept(input.driverId);
 		await this.rideRepository?.updateRide(ride);
+		await this.queue.publish("rideAccepted", { rideId: ride.getRideId(), driverName: account.name });
 	}
 }
 

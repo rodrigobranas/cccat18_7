@@ -1,15 +1,15 @@
 import Account from "../../domain/entity/Account";
 import { inject } from "../di/DI";
 import DatabaseConnection from "../database/DatabaseConnection";
+import { AccountRepositorySignup } from "../../application/usecase/Signup";
+import { AccountRepositoryGetAccount } from "../../application/usecase/GetAccount";
 
-// Port
-export default interface AccountRepository {
+export default interface AccountRepository extends AccountRepositorySignup, AccountRepositoryGetAccount {
 	getAccountByEmail (email: string): Promise<Account | undefined>;
 	getAccountById (accountId: string): Promise<Account>;
 	saveAccount (account: Account): Promise<void>;
 }
 
-// Adapter
 export class AccountRepositoryDatabase implements AccountRepository {
 	@inject("databaseConnection")
 	connection?: DatabaseConnection;

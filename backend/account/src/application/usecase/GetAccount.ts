@@ -1,14 +1,13 @@
-import AccountRepository from "../../infra/repository/AccountRepository";
+import Account from "../../domain/entity/Account";
 import { inject } from "../../infra/di/DI";
 
 export default class GetAccount {
 	@inject("accountRepository")
-	accountRepository?: AccountRepository;
+	accountRepository?: AccountRepositoryGetAccount;
 
 	async execute (accountId: string) {
 		const account = await this.accountRepository?.getAccountById(accountId);
 		if (!account) throw new Error("Account not found");
-		// DTO - Data Transfer Object
 		return {
 			accountId: account.getAccountId(),
 			name: account.getName(),
@@ -20,4 +19,8 @@ export default class GetAccount {
 			isDriver: account.isDriver
 		};
 	}
+}
+
+export interface AccountRepositoryGetAccount {
+	getAccountById (accountId: string): Promise<Account>;
 }

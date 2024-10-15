@@ -11,6 +11,8 @@ import FinishRide from "../src/application/usecase/FinishRide";
 import PaymentGateway from "../src/infra/gateway/PaymentGateway";
 import AccountGateway from "../src/infra/gateway/AccountGateway";
 import { RabbitMQAdapter } from "../src/infra/queue/Queue";
+import { AxiosAdapter } from "../src/infra/http/HttpClient";
+import axios from "axios";
 
 let requestRide: RequestRide;
 let getRide: GetRide;
@@ -33,6 +35,7 @@ beforeEach(async () => {
 	queue = new RabbitMQAdapter();
 	await queue.connect();
 	accountGateway = new AccountGateway();
+	Registry.getInstance().provide("httpClient", new AxiosAdapter());
 	Registry.getInstance().provide("accountGateway", accountGateway);
 	Registry.getInstance().provide("queue", queue);
 	Registry.getInstance().provide("databaseConnection", new PgPromiseAdapter());
@@ -264,6 +267,9 @@ test("Deve finalizar a corrida no primeiro dia do mês", async function () {
 	expect(outputGetRide.distance).toBe(30);
 	expect(outputGetRide.fare).toBe(30);
 	expect(outputGetRide.status).toBe("completed");
+	//
+	const response = await axios.get(`http://localhost:3003/rides/${outputRequestRide.rideId}`);
+	console.log(response.data);
 });
 
 afterEach(async () => {

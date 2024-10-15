@@ -85,7 +85,7 @@ export default class Ride extends Mediator {
 			this.fare += FareCalculatorFactory.create(position.date).calculate(distance);
 		}
 		this.status.finish();
-		const event = new RideCompletedEvent(this.getRideId(), this.fare);
+		const event = new RideCompletedEvent(this.getRideId(), this.fare, this.distance);
 		this.notify(RideCompletedEvent.eventName, event);
 	}
 

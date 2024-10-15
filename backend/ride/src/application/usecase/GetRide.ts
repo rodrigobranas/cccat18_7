@@ -5,6 +5,7 @@ import RideRepository from "../../infra/repository/RideRepository";
 import PositionRepository from "../../infra/repository/PositionRepository";
 import DistanceCalculator from "../../domain/service/DistanceCalculator";
 
+// Modelo, aqui usamos Domain Model, é a Command Stack (que não é adequada para query/leitura)
 export default class GetRide {
 	@inject("rideRepository")
 	rideRepository?: RideRepository;
@@ -16,6 +17,10 @@ export default class GetRide {
 		if (!ride) throw new Error("Ride not found");
 		const positions = await this.positionRepository?.getPositionsByRideId(rideId);
 		const distance = (ride.getStatus() === "completed") ? ride.getDistance() : DistanceCalculator.calculateByPositions(positions || []);
+		
+		// const passenger = await this.accountRepository.getAccountById(ride.passengerId); 
+		// const driver = await this.accountRepository.getAccountById(ride.driverId);
+
 		return {
 			rideId: ride.getRideId(),
 			passengerId: ride.getPassengerId(),

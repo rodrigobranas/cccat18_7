@@ -6,15 +6,30 @@ import RequestRide from "../src/application/usecase/RequestRide";
 import AcceptRide from "../src/application/usecase/AcceptRide";
 import { PositionRepositoryDatabase } from "../src/infra/repository/PositionRepository";
 import AccountGateway from "../src/infra/gateway/AccountGateway";
+import { AxiosAdapter } from "../src/infra/http/HttpClient";
+import { RabbitMQAdapter } from "../src/infra/queue/Queue";
 
 let requestRide: RequestRide;
 let getRide: GetRide;
 let acceptRide: AcceptRide;
 let accountGateway: AccountGateway;
+let queue: RabbitMQAdapter;
 
-beforeEach(() => {
+function sleep (time: number) {
+	return new Promise((resolve) => {
+		setTimeout(() => {
+			resolve(true);
+		}, time);
+	});
+}
+
+beforeEach(async () => {
+	queue = new RabbitMQAdapter();
+	await queue.connect();
 	accountGateway = new AccountGateway();
+	Registry.getInstance().provide("httpClient", new AxiosAdapter());
 	Registry.getInstance().provide("accountGateway", accountGateway);
+	Registry.getInstance().provide("queue", queue);
 	Registry.getInstance().provide("databaseConnection", new PgPromiseAdapter());
 	Registry.getInstance().provide("rideRepository", new RideRepositoryDatabase());
 	Registry.getInstance().provide("positionRepository", new PositionRepositoryDatabase());
